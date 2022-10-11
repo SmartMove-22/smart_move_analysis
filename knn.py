@@ -3,6 +3,8 @@ import numpy as np
 from typing import Iterable
 from sklearn.neighbors import KNeighborsRegressor
 from matplotlib import pyplot as plt
+from landmark_analysis import greatest_distance_pair_index
+
 
 
 class KNNRegressor:
@@ -21,6 +23,7 @@ The time should be normalized to the range [0, 1]
 
     def __init__(self, angles: Iterable[Iterable[float]], time: Iterable[float], n_neighbors=3, weights='uniform', name=None):
         self.name = name
+        self.reference_angles = angles
 
         self.model = KNeighborsRegressor(
             n_neighbors=n_neighbors,
@@ -30,14 +33,17 @@ The time should be normalized to the range [0, 1]
         self.model: KNeighborsRegressor
 
     # One-by-one
-    def progress(self, landmark_angles: Iterable[float]):
+    def progress(self, landmark_angles: Iterable[float]) -> float:
         landmark_angles = np.array(landmark_angles).reshape(1, -1)
         return self.model.predict(landmark_angles)
 
-    def correctness(self, landmark_angles: Iterable[float]):
+    def correctness(self, landmark_angles: Iterable[float]) -> float:
         landmark_angles = np.array(landmark_angles).reshape(1, -1)
-        distances, _ = self.model.kneighbors(landmark_angles, return_distance=True)
-        return 10 / np.average(distances[0])
+        distances, kneighbors = self.model.kneighbors(landmark_angles, n_neighbors=1, return_distance=True)
+        
+        correctness = 10 / np.average(distances[0])
+        idx = greatest_distance_pair_index(landmark_angles, self.reference_angles[ kneighbors[0] ])
+        return correctness, idx
 
 
 

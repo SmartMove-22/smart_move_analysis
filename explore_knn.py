@@ -1,8 +1,8 @@
 import cv2
 import mediapipe as mp
 
-from smart_move_analysis.knn import KNNRegressor
-from smart_move_analysis.landmark_analysis import landmark_list_angles
+from knn import KNNRegressor
+from landmark_analysis import landmark_list_angles
 from numpy import linspace
 
 mp_drawing = mp.solutions.drawing_utils
@@ -21,6 +21,7 @@ def image_status(image, string, counter):
 cap = cv2.VideoCapture(0)
 reference_data = []
 model = None
+most_diverging_angle_idx = None
 with mp_pose.Pose(
         min_detection_confidence=0.5,
         min_tracking_confidence=0.5) as pose:
@@ -42,18 +43,14 @@ with mp_pose.Pose(
         # Draw the pose annotation on the image
         image.flags.writeable = True
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-        mp_drawing.draw_landmarks(
-            image,
-            results.pose_landmarks,
-            mp_pose.POSE_CONNECTIONS,
-            landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
-
-        # Flip the image horizontally for a selfie-view display
-        image = cv2.flip(image, 1)
 
         # Analysis
         if counter < 100:
-            image_status(image, f'Prepare for training', counter)
+            if results.pose_landmarks:
+                image_status(image, f'Prepare for training', counter)
+            else:
+                image_status(image, f'ERROR: no results', counter)
+                counter -= 1
         elif counter < 200:
             if results.pose_landmarks:
                 image_status(image, f'Collecting data', counter)
@@ -67,14 +64,30 @@ with mp_pose.Pose(
         elif counter < 400:
             if results.pose_landmarks:
                 angles = landmark_list_angles(results.pose_landmarks.landmark, d2=True)
-                image_status(image, f'C: {model.correctness(angles):.4} | P: {model.progress(angles)}', counter)
+                correctness, most_diverging_angle_idx = model.correctness(angles)
+
+                image_status(image, f'C: {correctness:.4} | P: {model.progress(angles):.4}', counter)
             else:
                 image_status(image, f'ERROR: no results', counter)
                 counter -= 1
         else:
             counter = 0
             reference_data.clear()
-            model = None
+            del model
+            most_diverging_angle_idx = None
+
+        # Draw the landmarks, as well as the most diverging angle
+        pose_landmarks_style = mp_drawing_styles.get_default_pose_landmarks_style()
+        if most_diverging_angle_idx:
+            pose_landmarks_style[most_diverging_angle_idx] = mp_drawing_styles.DrawingSpec(color=(0, 0, 255), thickness=3, circle_radius=3)
+        mp_drawing.draw_landmarks(
+            image,
+            results.pose_landmarks,
+            mp_pose.POSE_CONNECTIONS,
+            landmark_drawing_spec=pose_landmarks_style)
+
+        # Flip the image horizontally for a selfie-view display
+        image = cv2.flip(image, 1)
 
         cv2.imshow('MediaPipe Pose', image)
         if cv2.waitKey(5) & 0xFF == 27:

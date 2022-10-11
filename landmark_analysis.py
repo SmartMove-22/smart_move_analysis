@@ -75,3 +75,13 @@ def landmark_list_angles(landmark_list, d2: bool=True):
 
 def euclidean_distance(ps1: Iterable[float], ps2: Iterable[float]) -> float:
     return math.sqrt((p1 - p2)**2 for p1, p2 in zip(ps1, ps2))
+
+def greatest_distance_pair_index(ps1: Iterable[float], ps2: Iterable[float]) -> int:
+    greatest_distance = 0
+    greatest_idx = 0
+    for idx, (p1, p2) in enumerate(zip(ps1, ps2)):
+        distance = math.sqrt((p1 - p2)**2)
+        if distance > greatest_distance:
+            greatest_distance = distance
+            greatest_idx = idx
+    return greatest_idx
