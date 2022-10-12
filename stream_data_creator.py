@@ -1,10 +1,10 @@
 import json
 import os
-import pickle
 import cv2
 import mediapipe as mp
 import time
 
+from sys import argv
 from enum import Enum
 from landmark_analysis import ANGLES_OF_INTEREST_IDX, landmark_list_angles
 
@@ -24,11 +24,14 @@ class DataStage(Enum):
 # Each exercise's half should be done throughout all of its respective frames
 NFRAMES = {
     'ABOUT_TO_CAPTURE': 50,
-    'FIRST_HALF': 100,
+    'FIRST_HALF': 50,
     'FIRST_HALF_WAIT': 1,
-    'SECOND_HALF': 100,
-    'SECOND_HALF_WAIT': 50,
+    'SECOND_HALF': 50,
+    'SECOND_HALF_WAIT': 1,
 }
+
+# TODO: make this more user-friendly with 'argparse'
+EXERCISE = argv[1] if len(argv) > 1 else None
 
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
@@ -39,8 +42,23 @@ mp_drawing: mp.solutions.mediapipe.python.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.mediapipe.python.solutions.drawing_styles
 mp_pose: mp.solutions.mediapipe.python.solutions.pose
 
-def image_status(image, string, counter, cap):
-    cv2.putText(image, f'Counter: {counter:>3}/{cap:>3} | ' + string, (0, 20), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.6, color=(247, 224, 47), thickness=2)
+def image_status(image, string, counter, cap, exercise=EXERCISE):
+    text_style = {
+        'fontFace': cv2.FONT_HERSHEY_SIMPLEX,
+        'fontScale': 0.70,
+        'color': (80, 80, 255),
+        'thickness': 2
+    }
+    outline_style = {
+        'fontFace': cv2.FONT_HERSHEY_SIMPLEX,
+        'fontScale': 0.70,
+        'color': (0, 0, 0),
+        'thickness': 6
+    }
+    cv2.putText(image, string, (0, 25), **outline_style)
+    cv2.putText(image, string, (0, 25), **text_style)
+    cv2.putText(image, f'Exercise: {exercise} | Counter: {counter:>3}/{cap:>3}', (0, 50), **outline_style)
+    cv2.putText(image, f'Exercise: {exercise} | Counter: {counter:>3}/{cap:>3}', (0, 50), **text_style)
 
 def landmark_to_dict(landmark):
     return {
@@ -115,7 +133,7 @@ with mp_pose.Pose(
 
                 reference_data_temp.append({
                     "half": 0,
-                    "exercise": None,
+                    "exercise": EXERCISE,
                     "progress": counter/NFRAMES['FIRST_HALF'],
                     "landmarks": [landmark_to_dict(landmark) for landmark in results.pose_landmarks.landmark],
                     "landmarks_world": [landmark_to_dict(landmark) for landmark in results.pose_world_landmarks.landmark]
@@ -148,7 +166,7 @@ with mp_pose.Pose(
 
                 reference_data_temp.append({
                     "half": 1,
-                    "exercise": None,
+                    "exercise": EXERCISE,
                     "progress": counter/NFRAMES['SECOND_HALF'],
                     "landmarks": [landmark_to_dict(landmark) for landmark in results.pose_landmarks.landmark],
                     "landmarks_world": [landmark_to_dict(landmark) for landmark in results.pose_world_landmarks.landmark]
@@ -177,8 +195,9 @@ with mp_pose.Pose(
 
         cv2.imshow('MediaPipe Pose', image)
         if cv2.waitKey(5) & 0xFF == 27:
-            with open(os.path.join(DATA_FOLDER, f'capture_{int(time.time())}'), 'wt') as reference_data_file:
-                json.dump(reference_data, reference_data_file)
+            if reference_data:
+                with open(os.path.join(DATA_FOLDER, f'capture_{int(time.time())}'), 'wt') as reference_data_file:
+                    json.dump(reference_data, reference_data_file)
             break
         
 
