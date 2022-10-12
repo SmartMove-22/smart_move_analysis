@@ -1,9 +1,9 @@
 import numpy as np
 
-from typing import Iterable
+from typing import Iterable, Tuple
 from sklearn.neighbors import KNeighborsRegressor
 from matplotlib import pyplot as plt
-from landmark_analysis import greatest_distance_pair_index
+from landmark_analysis import greatest_difference_pair
 
 
 
@@ -35,15 +35,15 @@ The time should be normalized to the range [0, 1]
     # One-by-one
     def progress(self, landmark_angles: Iterable[float]) -> float:
         landmark_angles = np.array(landmark_angles).reshape(1, -1)
-        return self.model.predict(landmark_angles)
+        return self.model.predict(landmark_angles)[0]
 
-    def correctness(self, landmark_angles: Iterable[float]) -> float:
-        landmark_angles = np.array(landmark_angles).reshape(1, -1)
-        distances, kneighbors = self.model.kneighbors(landmark_angles, n_neighbors=1, return_distance=True)
+    def correctness(self, landmark_angles: Iterable[float]) -> Tuple[float, float, int]:
+        distances, kneighbors = self.model.kneighbors(
+            np.array(landmark_angles).reshape(1, -1), n_neighbors=1, return_distance=True)
         
-        correctness = 10 / np.average(distances[0])
-        idx = greatest_distance_pair_index(landmark_angles, self.reference_angles[ kneighbors[0] ])
-        return correctness, idx
+        correctness = 10 / distances[0][0]
+        greatest_distance, greatest_distance_idx = greatest_difference_pair(landmark_angles, self.reference_angles[ kneighbors[0][0] ])
+        return correctness, greatest_distance, greatest_distance_idx
 
 
 

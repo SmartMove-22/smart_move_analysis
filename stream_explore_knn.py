@@ -2,8 +2,12 @@ import cv2
 import mediapipe as mp
 
 from knn import KNNRegressor
-from landmark_analysis import landmark_list_angles
+from landmark_analysis import landmark_list_angles, get_landmark_from_angle
 from numpy import linspace
+
+'''
+Script to quickly and easily explore the KNN model
+'''
 
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
@@ -40,11 +44,14 @@ with mp_pose.Pose(
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         results = pose.process(image)
 
-        # Draw the pose annotation on the image
+        # Draw the status text and pose annotation on the image
         image.flags.writeable = True
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
         # Analysis
+        # The flips at the beginning and end are done to not interfere with the
+        # final image flip for the selfie-view, or else the text will be flipped
+        image = cv2.flip(image, 1)
         if counter < 100:
             if results.pose_landmarks:
                 image_status(image, f'Prepare for training', counter)
@@ -75,11 +82,13 @@ with mp_pose.Pose(
             reference_data.clear()
             del model
             most_diverging_angle_idx = None
+        image = cv2.flip(image, 1)
 
         # Draw the landmarks, as well as the most diverging angle
         pose_landmarks_style = mp_drawing_styles.get_default_pose_landmarks_style()
         if most_diverging_angle_idx:
-            pose_landmarks_style[most_diverging_angle_idx] = mp_drawing_styles.DrawingSpec(color=(0, 0, 255), thickness=3, circle_radius=3)
+            pose_landmarks_style[ get_landmark_from_angle(most_diverging_angle_idx) ] = \
+                mp_drawing_styles.DrawingSpec(color=(0, 0, 255), thickness=3, circle_radius=3)
         mp_drawing.draw_landmarks(
             image,
             results.pose_landmarks,
