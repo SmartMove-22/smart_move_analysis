@@ -87,7 +87,7 @@ with mp_pose.Pose(
         # Draw the landmarks, as well as the most diverging angle
         pose_landmarks_style = mp_drawing_styles.get_default_pose_landmarks_style()
         if most_diverging_angle_idx:
-            pose_landmarks_style[ get_landmark_from_angle(most_diverging_angle_idx) ] = \
+            pose_landmarks_style[ get_landmark_from_angle(most_diverging_angle_idx)[1] ] = \
                 mp_drawing_styles.DrawingSpec(color=(0, 0, 255), thickness=3, circle_radius=3)
         mp_drawing.draw_landmarks(
             image,

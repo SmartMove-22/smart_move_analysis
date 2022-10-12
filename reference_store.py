@@ -3,7 +3,7 @@ from pymongo import MongoClient
 
 
 
-class ReferenceLandmark:
+class LandmarkData:
 
     def __init__(self, x: float, y: float, z: float, visibility: float):
         self.x = x
@@ -26,7 +26,7 @@ class ExerciseReference:
         self.first_half = first_half
         self.exercise = exercise
         self.progress = progress
-        self.landmarks = [ReferenceLandmark(**landmark) for landmark in landmarks]
+        self.landmarks = [LandmarkData(**landmark) for landmark in landmarks]
 
     def as_dict(self) -> dict:
         return {
