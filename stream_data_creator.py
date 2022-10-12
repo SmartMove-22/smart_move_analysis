@@ -6,7 +6,7 @@ import time
 
 from sys import argv
 from enum import Enum
-from landmark_analysis import ANGLES_OF_INTEREST_IDX, landmark_list_angles
+from utils import ANGLES_OF_INTEREST_IDX, landmark_list_angles
 
 '''
 Script for creating reference data
@@ -55,6 +55,7 @@ def image_status(image, string, counter, cap, exercise=EXERCISE):
         'color': (0, 0, 0),
         'thickness': 6
     }
+    
     cv2.putText(image, string, (0, 25), **outline_style)
     cv2.putText(image, string, (0, 25), **text_style)
     cv2.putText(image, f'Exercise: {exercise} | Counter: {counter:>3}/{cap:>3}', (0, 50), **outline_style)
@@ -132,7 +133,7 @@ with mp_pose.Pose(
                 image_status(image, f'Capturing first half of exercise', counter, NFRAMES['FIRST_HALF'])
 
                 reference_data_temp.append({
-                    "half": 0,
+                    "first_half": True,
                     "exercise": EXERCISE,
                     "progress": counter/NFRAMES['FIRST_HALF'],
                     "landmarks": [landmark_to_dict(landmark) for landmark in results.pose_landmarks.landmark],
@@ -165,7 +166,7 @@ with mp_pose.Pose(
                 image_status(image, f'Capturing second half of exercise', counter, NFRAMES['SECOND_HALF'])
 
                 reference_data_temp.append({
-                    "half": 1,
+                    "first_half": False,
                     "exercise": EXERCISE,
                     "progress": counter/NFRAMES['SECOND_HALF'],
                     "landmarks": [landmark_to_dict(landmark) for landmark in results.pose_landmarks.landmark],

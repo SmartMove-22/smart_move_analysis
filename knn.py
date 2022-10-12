@@ -3,7 +3,7 @@ import numpy as np
 from typing import Iterable, Tuple
 from sklearn.neighbors import KNeighborsRegressor
 from matplotlib import pyplot as plt
-from landmark_analysis import greatest_difference_pair
+from utils import greatest_difference_pair
 
 
 
