@@ -114,7 +114,7 @@ def greatest_difference_pair(ps1: Iterable[float], ps2: Iterable[float]) -> Tupl
     greatest_distance = 0
     greatest_idx = 0
     for idx, (p1, p2) in enumerate(zip(ps1, ps2)):
-        distance = (p1 - p2)
+        distance = abs(p1 - p2)
         if distance > greatest_distance:
             greatest_distance = distance
             greatest_idx = idx
