@@ -1,10 +1,10 @@
-from SmartMove.smart_move_analysis.reference_store import ExerciseReference
 import numpy as np
 
 from typing import Iterable, List, Tuple
 from sklearn.neighbors import KNeighborsRegressor
 from matplotlib import pyplot as plt
-from utils import greatest_difference_pair, landmark_list_angles
+from .utils import greatest_difference_pair, landmark_list_angles
+from .reference_store import ExerciseReference
 
 
 
@@ -48,6 +48,9 @@ The time should be normalized to the range [0, 1]
 
     @classmethod
     def from_exercise_references(cls, exercise_references: List[ExerciseReference], d2=True, **kwargs) -> 'KNNRegressor':
+        if not exercise_references:
+            return None
+
         angles = landmark_list_angles([ref.landmarks for ref in exercise_references], d2=d2)
         time = [ref.progress for ref in exercise_references]
 

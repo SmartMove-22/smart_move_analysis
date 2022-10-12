@@ -1,9 +1,12 @@
+import json
+import os
 import cv2
 import mediapipe as mp
 
 from numpy import linspace
-from .knn import KNNRegressor
-from .utils import landmark_list_angles, get_landmarks_from_angle
+from knn import KNNRegressor
+from utils import landmark_list_angles, get_landmarks_from_angle
+from reference_store import LandmarkData
 
 '''
 Script to quickly and easily explore the KNN model
@@ -37,10 +40,22 @@ def image_status(image, string, counter):
     cv2.putText(image, f'Counter: {counter:>3}', (0, 50), **outline_style)
     cv2.putText(image, f'Counter: {counter:>3}', (0, 50), **text_style)
 
+# Train model with data from the 'data' folder
+EXERCISE = 'squat'
+for file in os.scandir('data'):
+    reference_data = []
+    progress_data = []
+    if file.is_file():
+        with open(file.path, 'rt') as reference_file:
+            for reference in json.load(reference_file):
+                reference_data.append([LandmarkData(**landmark) for landmark in reference['landmarks']])
+                progress_data.append(reference['progress'])
+            
+model = KNNRegressor(reference_data, progress_data)
+
 # For webcam input
 cap = cv2.VideoCapture(0)
 reference_data = []
-model = None
 most_diverging_angle_value = None
 most_diverging_angle_idx = None
 with mp_pose.Pose(
@@ -69,36 +84,14 @@ with mp_pose.Pose(
         # The flips at the beginning and end are done to not interfere with the
         # final image flip for the selfie-view, or else the text will be flipped
         image = cv2.flip(image, 1)
-        if counter < 100:
-            if results.pose_landmarks:
-                image_status(image, f'Prepare for training', counter)
-            else:
-                image_status(image, f'ERROR: no results', counter)
-                counter -= 1
-        elif counter < 200:
-            if results.pose_landmarks:
-                image_status(image, f'Collecting data', counter)
-                reference_data.append( landmark_list_angles(results.pose_landmarks.landmark, d2=True) )
-            else:
-                image_status(image, f'ERROR: no results', counter)
-                counter -= 1
-        elif counter < 201:
-            image_status(image, f'Training model', counter)
-            model = KNNRegressor(reference_data, linspace(0.0, 1.0, len(reference_data)))
-        elif counter < 400:
-            if results.pose_landmarks:
-                angles = landmark_list_angles(results.pose_landmarks.landmark, d2=True)
-                correctness, most_diverging_angle_value, most_diverging_angle_idx = model.correctness(angles)
+        if results.pose_landmarks:
+            angles = landmark_list_angles(results.pose_landmarks.landmark, d2=True)
+            correctness, most_diverging_angle_value, most_diverging_angle_idx = model.correctness(angles)
 
-                image_status(image, f'C: {correctness:.4} | P: {model.progress(angles):.4}', counter)
-            else:
-                image_status(image, f'ERROR: no results', counter)
-                counter -= 1
+            image_status(image, f'C: {correctness:.4} | P: {model.progress(angles):.4}', counter)
         else:
-            counter = 0
-            reference_data.clear()
-            del model
-            most_diverging_angle_idx = None
+            image_status(image, f'ERROR: no results', counter)
+            counter -= 1
         image = cv2.flip(image, 1)
 
         # Draw the landmarks, as well as the most diverging angle

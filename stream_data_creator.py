@@ -6,10 +6,10 @@ import time
 
 from sys import argv
 from enum import Enum
-from utils import ANGLES_OF_INTEREST_IDX, landmark_list_angles
+from .utils import ANGLES_OF_INTEREST_IDX, landmark_list_angles
 
 '''
-Script for creating reference data
+Script for creating exercise reference data
 '''
 
 class DataStage(Enum):
@@ -31,7 +31,11 @@ NFRAMES = {
 }
 
 # TODO: make this more user-friendly with 'argparse'
-EXERCISE = argv[1] if len(argv) > 1 else None
+if len(argv) > 1:
+    EXERCISE = argv[1]
+else:
+    print('Specify the exercise as the first argument')
+    exit()
 
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
@@ -197,7 +201,7 @@ with mp_pose.Pose(
         cv2.imshow('MediaPipe Pose', image)
         if cv2.waitKey(5) & 0xFF == 27:
             if reference_data:
-                with open(os.path.join(DATA_FOLDER, f'capture_{int(time.time())}'), 'wt') as reference_data_file:
+                with open(os.path.join(DATA_FOLDER, f'capture_{int(time.time())}.json'), 'wt') as reference_data_file:
                     json.dump(reference_data, reference_data_file)
             break
         

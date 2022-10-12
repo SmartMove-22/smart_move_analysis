@@ -48,7 +48,7 @@ class ReferenceStore:
         self._collection = self._database['exercise_references']
     
     def get(self, exercise: str, first_half: bool) -> List[ExerciseReference]:
-        return map(lambda kwargs: ExerciseReference(**kwargs), self._collection.find({'exercise': exercise, 'first_half': first_half}))
+        return [ExerciseReference(**kwargs) for kwargs in self._collection.find({'exercise': exercise, 'first_half': first_half})]
 
-    def insert(self, references: dict):
+    def insert(self, references: List[dict]):
         self._collection.insert_many(references)
