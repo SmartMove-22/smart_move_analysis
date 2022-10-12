@@ -3,7 +3,6 @@ import os
 import cv2
 import mediapipe as mp
 
-from numpy import linspace
 from knn import KNNRegressor
 from utils import landmark_list_angles, get_landmarks_from_angle
 from reference_store import LandmarkData

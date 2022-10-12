@@ -22,11 +22,11 @@ class LandmarkData:
 
 class ExerciseReference:
 
-    def __init__(self, first_half: bool, exercise: str, progress: float, landmarks: List[dict]):
+    def __init__(self, first_half: bool, exercise: str, progress: float, landmarks: List[LandmarkData]):
         self.first_half = first_half
         self.exercise = exercise
         self.progress = progress
-        self.landmarks = [LandmarkData(**landmark) for landmark in landmarks]
+        self.landmarks = landmarks
 
     def as_dict(self) -> dict:
         return {
@@ -48,7 +48,12 @@ class ReferenceStore:
         self._collection = self._database['exercise_references']
     
     def get(self, exercise: str, first_half: bool) -> List[ExerciseReference]:
-        return [ExerciseReference(**kwargs) for kwargs in self._collection.find({'exercise': exercise, 'first_half': first_half})]
+        return [ExerciseReference(
+            first_half=doc['first_half'],
+            exercise=doc['exercise'],
+            progress=doc['progress'],
+            landmarks=[LandmarkData(**landmark) for landmark in doc['landmarks']]
+        ) for doc in self._collection.find({'exercise': exercise, 'first_half': first_half})]
 
     def insert(self, references: List[dict]):
         self._collection.insert_many(references)

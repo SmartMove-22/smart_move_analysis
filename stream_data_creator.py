@@ -6,7 +6,7 @@ import time
 
 from sys import argv
 from enum import Enum
-from .utils import ANGLES_OF_INTEREST_IDX, landmark_list_angles
+from utils import ANGLES_OF_INTEREST_IDX, landmark_list_angles
 
 '''
 Script for creating exercise reference data

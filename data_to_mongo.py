@@ -2,7 +2,7 @@ import os
 import json
 
 from sys import argv
-from .reference_store import ReferenceStore
+from reference_store import ReferenceStore
 
 
 
@@ -17,4 +17,5 @@ if __name__ == '__main__':
             with open(file.path, 'rt') as reference_file:
                 references.extend( json.load(reference_file) )
     
-    rs.insert(json.load(reference_file))
+    print(references)
+    rs.insert(references)

@@ -51,7 +51,7 @@ The time should be normalized to the range [0, 1]
         if not exercise_references:
             return None
 
-        angles = landmark_list_angles([ref.landmarks for ref in exercise_references], d2=d2)
+        angles = [landmark_list_angles(ref.landmarks, d2=d2) for ref in exercise_references]
         time = [ref.progress for ref in exercise_references]
 
         return KNNRegressor(angles, time, **kwargs)
