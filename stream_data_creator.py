@@ -1,3 +1,4 @@
+import json
 import os
 import pickle
 import cv2
@@ -24,7 +25,7 @@ class DataStage(Enum):
 NFRAMES = {
     'ABOUT_TO_CAPTURE': 50,
     'FIRST_HALF': 100,
-    'FIRST_HALF_WAIT': 50,
+    'FIRST_HALF_WAIT': 1,
     'SECOND_HALF': 100,
     'SECOND_HALF_WAIT': 50,
 }
@@ -40,6 +41,14 @@ mp_pose: mp.solutions.mediapipe.python.solutions.pose
 
 def image_status(image, string, counter, cap):
     cv2.putText(image, f'Counter: {counter:>3}/{cap:>3} | ' + string, (0, 20), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.6, color=(247, 224, 47), thickness=2)
+
+def landmark_to_dict(landmark):
+    return {
+        "x": landmark.x,
+        "y": landmark.y,
+        "z": landmark.z,
+        "visibility": landmark.visibility
+    }
 
 DATA_FOLDER = 'data'
 if not os.path.isdir(DATA_FOLDER):
@@ -108,7 +117,8 @@ with mp_pose.Pose(
                     "half": 0,
                     "exercise": None,
                     "progress": counter/NFRAMES['FIRST_HALF'],
-                    "landmarks": results.pose_landmarks.landmark
+                    "landmarks": [landmark_to_dict(landmark) for landmark in results.pose_landmarks.landmark],
+                    "landmarks_world": [landmark_to_dict(landmark) for landmark in results.pose_world_landmarks.landmark]
                 })
 
                 counter += 1
@@ -140,7 +150,8 @@ with mp_pose.Pose(
                     "half": 1,
                     "exercise": None,
                     "progress": counter/NFRAMES['SECOND_HALF'],
-                    "landmarks": results.pose_landmarks.landmark
+                    "landmarks": [landmark_to_dict(landmark) for landmark in results.pose_landmarks.landmark],
+                    "landmarks_world": [landmark_to_dict(landmark) for landmark in results.pose_world_landmarks.landmark]
                 })
 
                 counter += 1
@@ -166,7 +177,8 @@ with mp_pose.Pose(
 
         cv2.imshow('MediaPipe Pose', image)
         if cv2.waitKey(5) & 0xFF == 27:
-            pickle.dump(reference_data, os.path.join(DATA_FOLDER, f'capture_{time.time()}'))
+            with open(os.path.join(DATA_FOLDER, f'capture_{int(time.time())}'), 'wt') as reference_data_file:
+                json.dump(reference_data, reference_data_file)
             break
         
 

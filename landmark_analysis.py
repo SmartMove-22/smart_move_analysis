@@ -57,7 +57,7 @@ ANGLES_OF_INTEREST = [
     (pl.LEFT_ANKLE, pl.LEFT_HEEL, pl.LEFT_KNEE),
 ]
 
-class ANGLES_OF_INTEREST_IDX(Enum):
+class ANGLES_OF_INTEREST_IDX:
     Nose_RightShoulder_LeftShoulder = 0
     Nose_LeftShoulder_RightShoulder = 1
 

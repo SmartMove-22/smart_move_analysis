@@ -71,7 +71,7 @@ with mp_pose.Pose(
         elif counter < 400:
             if results.pose_landmarks:
                 angles = landmark_list_angles(results.pose_landmarks.landmark, d2=True)
-                correctness, most_diverging_angle_idx = model.correctness(angles)
+                correctness, most_divergent_angle_difference, most_diverging_angle_idx = model.correctness(angles)
 
                 image_status(image, f'C: {correctness:.4} | P: {model.progress(angles):.4}', counter)
             else:
