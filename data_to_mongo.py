@@ -2,7 +2,7 @@ import os
 import json
 
 from sys import argv
-from reference_store import ReferenceStore
+from .reference_store import ReferenceStore
 
 
 
