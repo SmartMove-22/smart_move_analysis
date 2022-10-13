@@ -6,7 +6,7 @@ import time
 
 from sys import argv
 from enum import Enum
-from utils import ANGLES_OF_INTEREST_IDX, landmark_list_angles
+from .utils import ANGLES_OF_INTEREST_IDX, landmark_list_angles
 
 '''
 Script for creating exercise reference data
@@ -36,6 +36,15 @@ if len(argv) > 1:
 else:
     print('Specify the exercise as the first argument')
     exit()
+
+if len(argv) > 2:
+    DATA_FOLDER = argv[2]
+else:
+    print('Specify the output data folder as the second argument')
+    exit()
+
+if not os.path.isdir(DATA_FOLDER):
+    os.mkdir(DATA_FOLDER)
 
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
@@ -72,10 +81,6 @@ def landmark_to_dict(landmark):
         "z": landmark.z,
         "visibility": landmark.visibility
     }
-
-DATA_FOLDER = 'data'
-if not os.path.isdir(DATA_FOLDER):
-    os.mkdir(DATA_FOLDER)
 
 # For webcam input
 cap = cv2.VideoCapture(0)
