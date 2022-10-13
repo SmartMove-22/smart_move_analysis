@@ -3,3 +3,5 @@ venv
 data/*
 
 !data/example_squat.json
+!data/example_pushup.json
+!data/example_situp.json

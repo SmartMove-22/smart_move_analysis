@@ -62,11 +62,11 @@ def model_results(landmarks, model):
 
 
 # Train model with captured data
+reference_data_fh = []
+reference_data_sh = []
+progress_data_fh = []
+progress_data_sh = []
 for file in os.scandir(DATA_FOLDER):
-    reference_data_fh = []
-    reference_data_sh = []
-    progress_data_fh = []
-    progress_data_sh = []
     if file.is_file():
         with open(file.path, 'rt') as reference_file:
             for reference in json.load(reference_file):
