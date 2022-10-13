@@ -1,7 +1,7 @@
 import math
 import mediapipe as mp
 
-from typing import Iterable, Tuple
+from typing import Iterable, Tuple, List
 
 
 mp_drawing = mp.solutions.drawing_utils
@@ -80,6 +80,7 @@ def get_landmarks_from_angle(landmark_angle: int) -> Tuple[int, int, int]:
 
     return ANGLES_OF_INTEREST[landmark_angle]
 
+
 def landmark_angle_2d(landmark_first, landmark_middle, landmark_last):
     '''Convert 3 positional landmarks into the angle defined by them. Done in 2D'''
 
@@ -94,6 +95,7 @@ def landmark_angle_3d(landmark_first, landmark_middle, landmark_last):
     '''Convert 3 positional landmarks into the angle defined by them. Done in 3D'''
     pass
 
+
 def landmark_list_angles(landmark_list, d2: bool=True):
     '''Convert a list of positional landmarks into a list of angles defined by those landmarks. \n
     The order of `ANGLES_OF_INTEREST` is followed. `d2` is `True` if the angle calculation is 2D
@@ -104,8 +106,54 @@ def landmark_list_angles(landmark_list, d2: bool=True):
     return [angle_method(landmark_list[l1], landmark_list[l2], landmark_list[l3])
             for l1, l2, l3 in ANGLES_OF_INTEREST]
 
-def euclidean_distance(ps1: Iterable[float], ps2: Iterable[float]) -> float:
-    return math.sqrt((p1 - p2)**2 for p1, p2 in zip(ps1, ps2))
+
+''' TEST CODE
+pacings = calculate_pacing(
+    progress_list=[
+        [0.2, 0.4, 0.6, 0.8, 0.95],  # first rep, first half
+        [0.2, 0.4, 0.6, 0.8, 0.95],  # first rep, second half
+        [0.2, 0.4, 0.6, 0.8, 0.95],  # second rep, first half
+        [0.2, 0.4, 0.6, 0.8, 0.95]   # second rep, second half
+    ],
+    time_list=[
+        [100, 200, 275, 350, 400],
+        [100, 200, 500, 800, 900],
+        [100, 220, 270, 340, 410],
+        [100, 200, 450, 790, 950],
+    ]
+)
+
+plt.plot(pacings, np.linspace(0, 1, len(pacings)))
+plt.title('Pacing')
+plt.xlabel('Time (ms)')
+plt.ylabel('Progress')
+plt.show()
+'''
+def calculate_pacing(progress_list: List[List[float]], time_list: List[List[int]], nbins=20) -> List[float]:
+    pacing = [[] for _ in range(nbins)]
+    pacing_idx = lambda progress: min(int(progress*nbins), 19)
+
+    for i in range(len(progress_list)//2):
+        first_half_idx = i*2
+        second_half_idx = i*2 + 1
+
+        first_half_progress = progress_list[first_half_idx]
+        first_half_time = time_list[first_half_idx]
+        second_half_progress = progress_list[second_half_idx]
+        second_half_time = time_list[second_half_idx]
+        
+        for progress, time in zip(first_half_progress, first_half_time):
+            progress = progress/2
+            pacing[pacing_idx(progress)].append(time)
+        last_time = time
+        for progress, time in zip(second_half_progress, second_half_time):
+            progress = 0.5 + progress/2
+            pacing[pacing_idx(progress)].append(last_time + time)
+
+    pacing = [sum(times)/len(times) for times in pacing if times]
+
+    return pacing
+
 
 def greatest_difference_pair(ps1: Iterable[float], ps2: Iterable[float]) -> Tuple[float, int]:
     '''Find the pair of values from `ps1` and `ps2` that have the greatest difference. \n
