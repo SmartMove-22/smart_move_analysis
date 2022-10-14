@@ -57,3 +57,6 @@ class ReferenceStore:
 
     def insert(self, references: List[dict]):
         self._collection.insert_many(references)
+    
+    def exercises(self) -> List[str]:
+        return self._collection.distinct('exercise')
