@@ -2,6 +2,7 @@ import math
 import mediapipe as mp
 
 from typing import Iterable, Tuple, List
+from mediapipe.python.solutions.pose import PoseLandmark
 
 
 mp_drawing = mp.solutions.drawing_utils
@@ -75,8 +76,21 @@ class ANGLES_OF_INTEREST_IDX:
     LeftAnkle_LeftHeel_LeftKnee = 13
 
 
+# Pre-defined sets of interest angles for each exercise.
+# They will be the only ones accounted for when evaluating an exercise.
+EXERCISE_ANGLES = {
+    'squat': [
+            ANGLES_OF_INTEREST_IDX.RightHip_RightKnee_RightAnkle,
+            ANGLES_OF_INTEREST_IDX.LeftHip_LeftKnee_LeftAnkle,
+
+            ANGLES_OF_INTEREST_IDX.RightShoulder_RightHip_RightKnee,
+            ANGLES_OF_INTEREST_IDX.LeftShoulder_LeftHip_LeftKnee,
+    ]
+}
+
+
 def get_landmarks_from_angle(landmark_angle: int) -> Tuple[int, int, int]:
-    '''From a landmark angle index, return the correspondent 3 landmarks' indices.'''
+    '''From a landmark angle index, return the 3 correspondent landmarks.'''
 
     return ANGLES_OF_INTEREST[landmark_angle]
 
@@ -84,8 +98,8 @@ def get_landmarks_from_angle(landmark_angle: int) -> Tuple[int, int, int]:
 def landmark_angle_2d(landmark_first, landmark_middle, landmark_last):
     '''Convert 3 positional landmarks into the angle defined by them. Done in 2D'''
 
-    angle = math.degrees(abs(\
-        math.atan2(landmark_first.y - landmark_middle.y, landmark_first.x - landmark_middle.x) \
+    angle = math.degrees(abs(
+        math.atan2(landmark_first.y - landmark_middle.y, landmark_first.x - landmark_middle.x)
         - math.atan2(landmark_last.y - landmark_middle.y, landmark_last.x - landmark_middle.x)))
     
     return angle if angle < 180 else 360 - angle
@@ -96,7 +110,7 @@ def landmark_angle_3d(landmark_first, landmark_middle, landmark_last):
     pass
 
 
-def landmark_list_angles(landmark_list, d2: bool=True):
+def landmark_list_angles(landmark_list, angles: list=ANGLES_OF_INTEREST, d2: bool=True):
     '''Convert a list of positional landmarks into a list of angles defined by those landmarks. \n
     The order of `ANGLES_OF_INTEREST` is followed. `d2` is `True` if the angle calculation is 2D
     or `False` if it's 3D.'''
@@ -104,7 +118,7 @@ def landmark_list_angles(landmark_list, d2: bool=True):
     angle_method = landmark_angle_2d if d2 else landmark_angle_3d
 
     return [angle_method(landmark_list[l1], landmark_list[l2], landmark_list[l3])
-            for l1, l2, l3 in ANGLES_OF_INTEREST]
+            for l1, l2, l3 in angles]
 
 
 ''' TEST CODE

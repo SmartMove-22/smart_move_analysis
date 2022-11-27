@@ -122,7 +122,7 @@ with mp_pose.Pose(
 
                 image_status(image, f'C: {correctness:.4} | P: {progress:.4}', repetitions, correctness > 0.5 and progress < 0.2)
 
-                if progress > 0.95:
+                if progress > 0.90 and correctness > 0.5:
                     first_half = not first_half
             else:
                 image_status(image, f'ERROR: no results', repetitions)
@@ -134,7 +134,7 @@ with mp_pose.Pose(
                 
                 image_status(image, f'C: {correctness:.4} | P: {progress:.4}', repetitions)
 
-                if progress > 0.95:
+                if progress > 0.90 and correctness > 0.5:
                     first_half = not first_half
                     repetitions += 1
             else:
