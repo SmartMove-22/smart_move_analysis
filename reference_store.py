@@ -2,7 +2,6 @@ import os
 import json
 
 from typing import List
-from pymongo import MongoClient
 
 
 
@@ -77,28 +76,3 @@ class ReferenceStore:
             landmarks=[LandmarkData(**landmark) for landmark in doc['landmarks']]
         )
         self._data.setdefault((reference.exercise, reference.first_half), []).append(reference)
-
-
-class ReferenceStoreMongo(ReferenceStore):
-
-    def __init__(self, connection_string: str):
-        self._connection_string = connection_string
-    
-        self._client = MongoClient(self._connection_string)
-
-        self._database = self._client['smart_move']
-        self._collection = self._database['exercise_references']
-    
-    def get(self, exercise: str, first_half: bool) -> List[ExerciseReference]:
-        return [ExerciseReference(
-            first_half=doc['first_half'],
-            exercise=doc['exercise'],
-            progress=doc['progress'],
-            landmarks=[LandmarkData(**landmark) for landmark in doc['landmarks']]
-        ) for doc in self._collection.find({'exercise': exercise, 'first_half': first_half})]
-
-    def insert(self, references: List[dict]):
-        self._collection.insert_many(references)
-    
-    def exercises(self) -> List[str]:
-        return self._collection.distinct('exercise')
