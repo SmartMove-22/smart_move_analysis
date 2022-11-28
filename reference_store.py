@@ -1,5 +1,19 @@
+import os
+import json
+
 from typing import List
 from pymongo import MongoClient
+
+
+
+def extract_references(data_folder: str):
+    references = []
+    for file in os.scandir(data_folder):
+        if file.is_file():
+            with open(file.path, 'rt') as reference_file:
+                references.extend( json.load(reference_file) )
+    
+    return references
 
 
 
@@ -38,6 +52,34 @@ class ExerciseReference:
 
 
 class ReferenceStore:
+
+    def __init__(self, data_folder: str=None):
+        self._data = {}
+        if data_folder:
+            for doc in extract_references(data_folder):
+                self._doc_to_data(doc)
+    
+    def get(self, exercise: str, first_half: bool) -> List[ExerciseReference]:
+        return self._data[exercise, first_half]
+
+    def insert(self, references: List[dict]):
+        for doc in references:
+            self._doc_to_data(doc)
+    
+    def exercises(self) -> List[str]:
+        return list({ exercise for exercise, first_half in self._data })
+
+    def _doc_to_data(self, doc: dict):
+        reference = ExerciseReference(
+            first_half=doc['first_half'],
+            exercise=doc['exercise'],
+            progress=doc['progress'],
+            landmarks=[LandmarkData(**landmark) for landmark in doc['landmarks']]
+        )
+        self._data.setdefault((reference.exercise, reference.first_half), []).append(reference)
+
+
+class ReferenceStoreMongo(ReferenceStore):
 
     def __init__(self, connection_string: str):
         self._connection_string = connection_string

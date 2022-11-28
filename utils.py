@@ -2,7 +2,6 @@ import math
 import mediapipe as mp
 
 from typing import Iterable, Tuple, List
-from mediapipe.python.solutions.pose import PoseLandmark
 
 
 mp_drawing = mp.solutions.drawing_utils
