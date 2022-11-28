@@ -54,7 +54,9 @@ def model_results(landmarks, model: KNNRegressor, angles_to_use: List[Tuple[int,
 def camera_loop(
         model_fh: KNNRegressor,
         model_sh: KNNRegressor,
-        angles_to_use: List[Tuple[int, int, int]]):
+        angles_to_use: List[Tuple[int, int, int]],
+        exercise_angles: str):
+    
     # For webcam input
     cap = cv2.VideoCapture(0)
     most_diverging_angle_value = None
@@ -92,7 +94,7 @@ def camera_loop(
                     progress, (correctness, most_diverging_angle_value, most_diverging_angle_idx) = \
                         model_results(results.pose_landmarks.landmark, model_fh, angles_to_use)
 
-                    image_status(image, f'C: {correctness:.4} | P: {progress:.4}', repetitions, first_half, correctness > 0.5 and progress < 0.2)
+                    image_status(image, f'C: {correctness:.4%} | P: {progress:.4}', repetitions, first_half, correctness > 0.5 and progress < 0.2)
 
                     if progress > 0.90 and correctness > 0.5:
                         first_half = not first_half
@@ -104,7 +106,7 @@ def camera_loop(
                     progress, (correctness, most_diverging_angle_value, most_diverging_angle_idx) = \
                         model_results(results.pose_landmarks.landmark, model_sh, angles_to_use)
                     
-                    image_status(image, f'C: {correctness:.4} | P: {progress:.4}', repetitions, first_half)
+                    image_status(image, f'C: {correctness:.4%} | P: {progress:.4}', repetitions, first_half)
 
                     if progress > 0.90 and correctness > 0.5:
                         first_half = not first_half
@@ -116,8 +118,12 @@ def camera_loop(
 
             # Draw the landmarks, as well as the most diverging angle
             pose_landmarks_style = mp_drawing_styles.get_default_pose_landmarks_style()
+            for angle_landmarks in angles_to_use:
+                for landmark in angle_landmarks:
+                    pose_landmarks_style[landmark] = \
+                        mp_drawing_styles.DrawingSpec(color=(0, 255, 0), thickness=3, circle_radius=2)
             if most_diverging_angle_idx and most_diverging_angle_value > 10:
-                pose_landmarks_style[ get_landmarks_from_angle(most_diverging_angle_idx)[1] ] = \
+                pose_landmarks_style[ get_landmarks_from_angle(most_diverging_angle_idx, exercise_angles)[1] ] = \
                     mp_drawing_styles.DrawingSpec(color=(0, 0, 255), thickness=3, circle_radius=3)
             mp_drawing.draw_landmarks(
                 image,
@@ -162,7 +168,7 @@ if __name__ == '__main__':
     exercise = args.exercise
     exercise_angles = args.angles
     data_folder = args.input_folder
-    
+
     angles_to_use = obtain_angles(exercise_angles)
 
     # Train model with captured data
@@ -191,4 +197,6 @@ if __name__ == '__main__':
     camera_loop(
             model_fh=model_fh,
             model_sh=model_sh,
-            angles_to_use=angles_to_use)
+            angles_to_use=angles_to_use,
+            exercise_angles=exercise_angles,
+    )

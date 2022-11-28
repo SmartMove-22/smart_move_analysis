@@ -88,10 +88,12 @@ EXERCISE_ANGLES = {
 }
 
 
-def get_landmarks_from_angle(landmark_angle: int) -> Tuple[int, int, int]:
-    '''From a landmark angle index, return the 3 correspondent landmarks.'''
+def get_landmarks_from_angle(landmark_angle: int, exercise_angles: str=None) -> Tuple[int, int, int]:
+    '''From a landmark angle index, return the 3 correspondent landmarks.
+    If an exercise is specified, then the index is relative to that exercise's angles.'''
 
-    return ANGLES_OF_INTEREST[landmark_angle]
+    return ANGLES_OF_INTEREST[landmark_angle] if not exercise_angles \
+        else ANGLES_OF_INTEREST[ EXERCISE_ANGLES[exercise_angles][landmark_angle] ]
 
 
 def landmark_angle_2d(landmark_first, landmark_middle, landmark_last):

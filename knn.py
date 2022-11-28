@@ -42,7 +42,11 @@ The time should be normalized to the range [0, 1]
         distances, kneighbors = self.model.kneighbors(
             np.array(landmark_angles).reshape(1, -1), n_neighbors=1, return_distance=True)
         
-        correctness = 10 / distances[0][0]
+        # Model's maximum distance for any given point
+        # (assumes euclidean distance, watch out for the model's parameters if another distance is used)
+        max_distance = np.sqrt(len(landmark_angles) * (360**2))
+        
+        correctness = max(0, - (1 / max_distance) * (distances[0][0]**2 - max_distance))
         greatest_distance, greatest_distance_idx = greatest_difference_pair(landmark_angles, self.reference_angles[ kneighbors[0][0] ])
         return correctness, greatest_distance, greatest_distance_idx
 
