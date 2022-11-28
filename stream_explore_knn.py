@@ -2,11 +2,10 @@ import argparse
 import cv2
 import mediapipe as mp
 
-from typing import Set, Tuple
-from itertools import compress
+from typing import List, Tuple
 from numpy import linspace
 from .knn import KNNRegressor
-from .utils import ANGLES_OF_INTEREST, EXERCISE_ANGLES, LANDMARKS_OF_INTEREST, landmark_list_angles, get_landmarks_from_angle
+from .utils import landmark_list_angles, get_landmarks_from_angle, obtain_angles
 
 description = '''
 Script to quickly and easily explore the KNN model
@@ -20,6 +19,7 @@ mp_pose = mp.solutions.pose
 mp_drawing: mp.solutions.mediapipe.python.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.mediapipe.python.solutions.drawing_styles
 mp_pose: mp.solutions.mediapipe.python.solutions.pose
+
 
 def image_status(image, string, counter):
     text_style = {
@@ -40,7 +40,8 @@ def image_status(image, string, counter):
     cv2.putText(image, f'Counter: {counter:>3}', (0, 50), **outline_style)
     cv2.putText(image, f'Counter: {counter:>3}', (0, 50), **text_style)
 
-def camera_loop(angles_to_use: Set[Tuple[int, int, int]]):
+    
+def camera_loop(angles_to_use: List[Tuple[int, int, int]]):
 
     # For webcam input
     cap = cv2.VideoCapture(0)
@@ -145,18 +146,13 @@ if __name__ == '__main__':
         description=description
     )
 
-    parser.add_argument('-e', '--exercise',
+    parser.add_argument('-a', '--angles',
         type=str,
-        help='The name of the exercise specifying the set of landmarks that should be used for training/testing. By default, use all landmarks.')
+        help='The name of the exercise specifying the set of angles that should be used for training/testing. By default, use all angles.')
     
     args = parser.parse_args()
-    exercise = args.exercise
+    exercise_angles = args.angles
     
-    if exercise is None:
-        angles_to_use = ANGLES_OF_INTEREST
-    else:
-        if exercise not in EXERCISE_ANGLES:
-            raise ValueError(f'The exercise \'{exercise}\' doesn\'t have landmarks set! Available exercises: {EXERCISE_ANGLES.keys()}')
-        angles_to_use = [ANGLES_OF_INTEREST[angle_idx] for angle_idx in EXERCISE_ANGLES[exercise]]
-
+    angles_to_use = obtain_angles(exercise_angles)
+    
     camera_loop(angles_to_use=angles_to_use)

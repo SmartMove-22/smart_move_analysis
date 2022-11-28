@@ -112,13 +112,24 @@ def landmark_angle_3d(landmark_first, landmark_middle, landmark_last):
 
 def landmark_list_angles(landmark_list, angles: list=ANGLES_OF_INTEREST, d2: bool=True):
     '''Convert a list of positional landmarks into a list of angles defined by those landmarks. \n
-    The order of `ANGLES_OF_INTEREST` is followed. `d2` is `True` if the angle calculation is 2D
+    The order of `angles` is followed. `d2` is `True` if the angle calculation is 2D
     or `False` if it's 3D.'''
 
     angle_method = landmark_angle_2d if d2 else landmark_angle_3d
 
     return [angle_method(landmark_list[l1], landmark_list[l2], landmark_list[l3])
             for l1, l2, l3 in angles]
+
+
+def obtain_angles(exercise_angles: str) -> List[Tuple[int, int, int]]:
+    '''For a given exercise name from `EXERCISE_ANGLES`, return the list of correspondent angles, each defined by 3 landmark indices.'''
+    if exercise_angles is None:
+        return ANGLES_OF_INTEREST
+    
+    if exercise_angles not in EXERCISE_ANGLES:
+        raise ValueError(f'The exercise \'{exercise_angles}\' doesn\'t have landmarks set! Available exercises: {EXERCISE_ANGLES.keys()}')
+    
+    return [ANGLES_OF_INTEREST[angle_idx] for angle_idx in EXERCISE_ANGLES[exercise_angles]]
 
 
 ''' TEST CODE
