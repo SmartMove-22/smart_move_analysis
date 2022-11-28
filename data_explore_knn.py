@@ -139,7 +139,7 @@ def camera_loop(
 if __name__ == '__main__':
     
     parser = argparse.ArgumentParser(
-        prog='Stream Data Creator',
+        prog='data_explore_knn',
         description=description
     )
 

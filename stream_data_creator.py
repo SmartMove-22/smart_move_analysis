@@ -209,7 +209,7 @@ def camera_loop(
 if __name__ == '__main__':
     
     parser = argparse.ArgumentParser(
-        prog='Stream Data Creator',
+        prog='stream_data_creator',
         description=description
     )
 

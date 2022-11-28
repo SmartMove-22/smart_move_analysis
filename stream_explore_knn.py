@@ -142,7 +142,7 @@ def camera_loop(angles_to_use: List[Tuple[int, int, int]]):
 if __name__ == '__main__':
     
     parser = argparse.ArgumentParser(
-        prog='Stream Explore KNN',
+        prog='stream_explore_knn',
         description=description
     )
 
