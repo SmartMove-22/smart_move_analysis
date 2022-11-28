@@ -3,7 +3,7 @@ import numpy as np
 from typing import Iterable, List, Tuple
 from sklearn.neighbors import KNeighborsRegressor
 from matplotlib import pyplot as plt
-from .utils import greatest_difference_pair, landmark_list_angles
+from .utils import greatest_difference_pair, landmark_list_angles, obtain_angles
 from .reference_store import ExerciseReference
 
 
@@ -47,11 +47,12 @@ The time should be normalized to the range [0, 1]
         return correctness, greatest_distance, greatest_distance_idx
 
     @classmethod
-    def from_exercise_references(cls, exercise_references: List[ExerciseReference], d2=True, **kwargs) -> 'KNNRegressor':
+    def from_exercise_references(cls, exercise_references: List[ExerciseReference], exercise_angles: str=None, d2=True, **kwargs) -> 'KNNRegressor':
         if not exercise_references:
             return None
 
-        angles = [landmark_list_angles(ref.landmarks, d2=d2) for ref in exercise_references]
+        angles_to_use = obtain_angles(exercise_angles)
+        angles = [landmark_list_angles(ref.landmarks, angles=angles_to_use, d2=d2) for ref in exercise_references]
         time = [ref.progress for ref in exercise_references]
 
         return KNNRegressor(angles, time, **kwargs)
