@@ -6,9 +6,9 @@ from typing import List, Tuple
 import cv2
 import mediapipe as mp
 
-from .knn import KNNRegressor
-from .reference_store import LandmarkData
-from .utils import get_landmarks_from_angle, landmark_list_angles, obtain_angles
+from ..knn import KNNRegressor
+from ..reference_store import LandmarkData
+from ..utils import get_landmarks_from_angle, landmark_list_angles, obtain_angles
 
 description = '''
 Script to quickly and easily explore the KNN model trained on captured data
@@ -19,9 +19,9 @@ mp_drawing_styles = mp.solutions.drawing_styles
 mp_pose = mp.solutions.pose
 
 # IntelliSense
-mp_drawing: mp.solutions.mediapipe.python.solutions.drawing_utils
-mp_drawing_styles = mp.solutions.mediapipe.python.solutions.drawing_styles
-mp_pose: mp.solutions.mediapipe.python.solutions.pose
+# mp_drawing: mp.solutions.mediapipe.python.solutions.drawing_utils
+# mp_drawing_styles = mp.solutions.mediapipe.python.solutions.drawing_styles
+# mp_pose: mp.solutions.mediapipe.python.solutions.pose
 
 
 def image_status(image: cv2.Mat, string: str, repetitions: int, first_half: bool, at_starting_position: bool=False):

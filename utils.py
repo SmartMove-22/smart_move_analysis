@@ -10,9 +10,9 @@ mp_pose = mp.solutions.pose
 pl = mp_pose.PoseLandmark
 
 # IntelliSense
-mp_drawing: mp.solutions.mediapipe.python.solutions.drawing_utils
-mp_drawing_styles = mp.solutions.mediapipe.python.solutions.drawing_styles
-mp_pose: mp.solutions.mediapipe.python.solutions.pose
+# mp_drawing: mp.solutions.mediapipe.python.solutions.drawing_utils
+# mp_drawing_styles = mp.solutions.mediapipe.python.solutions.drawing_styles
+# mp_pose: mp.solutions.mediapipe.python.solutions.pose
 
 
 LANDMARKS_OF_INTEREST = [

@@ -7,7 +7,7 @@ from enum import Enum
 import cv2
 import mediapipe as mp
 
-from .utils import ANGLES_OF_INTEREST_IDX, landmark_list_angles
+from ..utils import ANGLES_OF_INTEREST_IDX, landmark_list_angles
 
 description = '''
 Script for creating exercise reference data

@@ -4,8 +4,8 @@ import mediapipe as mp
 
 from typing import List, Tuple
 from numpy import linspace
-from .knn import KNNRegressor
-from .utils import landmark_list_angles, get_landmarks_from_angle, obtain_angles
+from ..knn import KNNRegressor
+from ..utils import landmark_list_angles, get_landmarks_from_angle, obtain_angles
 
 description = '''
 Script to quickly and easily explore the KNN model
@@ -16,9 +16,9 @@ mp_drawing_styles = mp.solutions.drawing_styles
 mp_pose = mp.solutions.pose
 
 # IntelliSense
-mp_drawing: mp.solutions.mediapipe.python.solutions.drawing_utils
-mp_drawing_styles = mp.solutions.mediapipe.python.solutions.drawing_styles
-mp_pose: mp.solutions.mediapipe.python.solutions.pose
+# mp_drawing: mp.solutions.drawing_utils
+# mp_drawing_styles = mp.solutions.drawing_styles
+# mp_pose: mp.solutions.pose
 
 
 def image_status(image, string, counter):
