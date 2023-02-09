@@ -181,9 +181,9 @@ def calculate_pacing(progress_list: List[List[float]], time_list: List[List[int]
     return pacing
 
 
-def greatest_difference_pair(ps1: Iterable[float], ps2: Iterable[float]) -> Tuple[float, int]:
+def greatest_difference_pair(ps1: Iterable[float], ps2: Iterable[float]) -> int:
     '''Find the pair of values from `ps1` and `ps2` that have the greatest difference. \n
-    Returns that difference and the index of that pair.'''
+    Returns the index of that pair.'''
     greatest_distance = 0
     greatest_idx = 0
     for idx, (p1, p2) in enumerate(zip(ps1, ps2)):
@@ -191,4 +191,4 @@ def greatest_difference_pair(ps1: Iterable[float], ps2: Iterable[float]) -> Tupl
         if distance > greatest_distance:
             greatest_distance = distance
             greatest_idx = idx
-    return greatest_distance, greatest_idx
+    return greatest_idx

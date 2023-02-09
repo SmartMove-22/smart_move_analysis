@@ -38,17 +38,18 @@ The time should be normalized to the range [0, 1]
         landmark_angles = np.array(landmark_angles).reshape(1, -1)
         return self.model.predict(landmark_angles)[0]
 
-    def correctness(self, landmark_angles: Iterable[float]) -> Tuple[float, float, int]:
-        distances, kneighbors = self.model.kneighbors(
-            np.array(landmark_angles).reshape(1, -1), n_neighbors=1, return_distance=True)
+    def correctness(self, landmark_angles: Iterable[float]) -> Tuple[float, int, float]:
+        closest_poses, closest_poses_distances = self.closest_reference_poses(landmark_angles, n_poses=1)
+        closest_pose = closest_poses[0]
+        closest_pose_distance = closest_poses_distances[0]
         
         # Model's maximum distance for any given point
         # (assumes euclidean distance, watch out for the model's parameters if another distance is used)
         max_distance = np.sqrt(len(landmark_angles) * (360**2))
         
-        correctness = max(0, - (1 / max_distance) * (distances[0][0]**2 - max_distance))
-        greatest_distance, greatest_distance_idx = greatest_difference_pair(landmark_angles, self.reference_angles[ kneighbors[0][0] ])
-        return correctness, greatest_distance, greatest_distance_idx
+        correctness = max(0, (1 / max_distance) * (max_distance - closest_pose_distance**2))
+        greatest_distance_idx = greatest_difference_pair(landmark_angles, closest_pose)
+        return correctness, greatest_distance_idx, closest_pose[greatest_distance_idx]
 
     @classmethod
     def from_exercise_references(cls, exercise_references: List[ExerciseReference], exercise_angles: str=None, d2=True, **kwargs) -> 'KNNRegressor':
@@ -60,6 +61,12 @@ The time should be normalized to the range [0, 1]
         time = [ref.progress for ref in exercise_references]
 
         return KNNRegressor(angles, time, **kwargs)
+
+    def closest_reference_poses(self, landmark_angles: Iterable[float], n_poses: int) -> Tuple[List[List[float]], List[int]]:
+        distances, kneighbors = self.model.kneighbors(
+            np.array(landmark_angles).reshape(1, -1), n_neighbors=n_poses, return_distance=True)
+
+        return [self.reference_angles[pose_idx] for pose_idx in kneighbors[0]], list(distances[0])
 
 
 
