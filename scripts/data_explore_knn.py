@@ -6,7 +6,7 @@ from typing import List, Tuple
 import cv2
 import mediapipe as mp
 
-from ..knn import KNNRegressor
+from ..analyzer import Analyzer
 from ..reference_store import LandmarkData
 from ..utils import get_landmarks_from_angle, landmark_list_angles, obtain_angles
 
@@ -46,14 +46,14 @@ def image_status(image: cv2.Mat, string: str, repetitions: int, first_half: bool
     cv2.putText(image, f'At starting position? {at_starting_position}', (0, 75), **text_style)
 
     
-def model_results(landmarks, model: KNNRegressor, angles_to_use: List[Tuple[int, int, int]]):
+def model_results(landmarks, model: Analyzer, angles_to_use: List[Tuple[int, int, int]]):
     angles = landmark_list_angles(landmarks, angles=angles_to_use, d2=True)
     return model.progress(angles), model.correctness(angles)
 
 
 def camera_loop(
-        model_fh: KNNRegressor,
-        model_sh: KNNRegressor,
+        model_fh: Analyzer,
+        model_sh: Analyzer,
         angles_to_use: List[Tuple[int, int, int]],
         exercise_angles: str):
     
@@ -191,8 +191,8 @@ if __name__ == '__main__':
                             progress_data_sh.append(reference['progress'])
 
     # One model for each half of the exercise 
-    model_fh = KNNRegressor(reference_data_fh, progress_data_fh)
-    model_sh = KNNRegressor(reference_data_sh, progress_data_sh)
+    model_fh = Analyzer(reference_data_fh, progress_data_fh)
+    model_sh = Analyzer(reference_data_sh, progress_data_sh)
 
     camera_loop(
             model_fh=model_fh,

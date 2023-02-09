@@ -4,7 +4,7 @@ import mediapipe as mp
 
 from typing import List, Tuple
 from numpy import linspace
-from ..knn import KNNRegressor
+from ..analyzer import Analyzer
 from ..utils import landmark_list_angles, get_landmarks_from_angle, obtain_angles
 
 description = '''
@@ -93,7 +93,7 @@ def camera_loop(angles_to_use: List[Tuple[int, int, int]]):
             # Create and train the model
             elif counter < 201:
                 image_status(image, f'Training model', counter)
-                model = KNNRegressor(reference_data, linspace(0.0, 1.0, len(reference_data)))
+                model = Analyzer(reference_data, linspace(0.0, 1.0, len(reference_data)))
             # Testing the created model
             elif counter < 400:
                 if results.pose_landmarks:
